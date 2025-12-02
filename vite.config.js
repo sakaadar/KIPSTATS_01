@@ -20,8 +20,8 @@ export default defineConfig(async () => ({
     hmr: host
       ? {
           protocol: "ws",
-          host,
-          port: 1421,
+          host: '127.0.0.1',
+          port: 5050,
         }
       : undefined,
     watch: {
