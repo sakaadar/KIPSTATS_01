@@ -1,6 +1,6 @@
 <script>
     import '../app.css';
-    import Navbar from "$lib/core/shared/components/Navbar.svelte";
+    import Navbar from "$lib/components/Navbar.svelte";
 </script>
 <div class="app-root">
     <Navbar/>
@@ -18,7 +18,7 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         background-color: hwb(231 4% 44% / 0.662);
         color: #e5e7eb;
-        background: radial-gradient(circle at the top, #111827 0, #020617 45%, #000 100%);
+        background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
     }
     .app-root{
         min-height: 100vh;
@@ -29,7 +29,7 @@
         flex: 1;
         display: flex;
         justify-content: center;
-        padding: 1rem 1,5rem;
+        padding: 1rem 1.5rem;
         box-sizing: border-box;
     }
     /*Selve "dashboardet-kortet" hvor alt indholdet ligger */
