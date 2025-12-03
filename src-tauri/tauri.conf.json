@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "kipstats_01",
+  "productName": "InStats",
   "version": "0.1.0",
   "identifier": "com.sakaa.kipstats_01",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "kipstats_01",
+        "title": "InStats",
         "width": 800,
         "height": 600
       }
