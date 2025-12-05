@@ -18,7 +18,7 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         background-color: hwb(231 4% 44% / 0.662);
         color: #e5e7eb;
-        background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+        background: radial-gradient(circle at top, #111827 0, #6880e8 45%, #000 100%);
     }
     .app-root{
         min-height: 100vh;
