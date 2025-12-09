@@ -23,7 +23,7 @@
         { id: 20, name: "Luden's Tempest", type: "AP", hasAS: false, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/6653.png" },
     ];
 
-    let selectedType = "All"; // All, AD, or AP
+    let selectedType = "AD"; // Changed default to AD for initial toggle visibility
     let showAS = false; // Attack Speed filter
     let selectedItem: any = null;
 
@@ -45,7 +45,6 @@
 <div class="items-page">
     <h1 class="page-title">Items</h1>
 
-    <!-- Item Filters -->
     <div class="item-filters">
         <div class="type-filter">
             <button
@@ -55,21 +54,16 @@
             >
                 All
             </button>
-            <button
-                    class="filter-btn ad"
-                    class:active={selectedType === "AD"}
-                    on:click={() => selectedType = "AD"}
-            >
-                AD
-            </button>
-            <button
-                    class="filter-btn ap"
-                    class:active={selectedType === "AP"}
-                    on:click={() => selectedType = "AP"}
-            >
-                AP
-            </button>
+
+            <div class="toggle-switch" on:click={() => selectedType = selectedType === "AD" ? "AP" : "AD"}>
+                <div class="toggle-track" class:ad={selectedType === "AD"} class:ap={selectedType === "AP"}>
+                    <span class="toggle-label ad-label" class:hidden={selectedType === 'AP'}>AD</span>
+                    <span class="toggle-label ap-label" class:hidden={selectedType === 'AD'}>AP</span>
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
         </div>
+
 
         <button
                 class="as-filter-btn"
@@ -80,7 +74,6 @@
         </button>
     </div>
 
-    <!-- Items Grid -->
     <div class="items-grid">
         {#each filteredItems as item (item.id)}
             <div class="item-card" on:click={() => openItemModal({item : item})}>
@@ -96,7 +89,6 @@
     </div>
 </div>
 
-<!-- Item Detail Modal -->
 {#if selectedItem}
     <div class="modal-backdrop" on:click={closeModal}>
         <div class="modal-content" on:click|stopPropagation>
@@ -122,6 +114,85 @@
 {/if}
 
 <style>
+
+
+    /* Toggle switch styles */
+    .toggle-switch {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin-left: 0.5rem;
+    }
+
+    .toggle-track {
+        width: 60px;
+        height: 30px;
+        background: #ccc;
+        border-radius: 30px;
+        position: relative;
+        overflow: visible;
+        transition: background 0.3s;
+        /* ADDED for label positioning */
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+    }
+
+    .toggle-track.ad {
+        background: #ef4444; /* Red for AD */
+    }
+
+    .toggle-track.ap {
+        background: #a78bfa; /* Purple for AP */
+    }
+
+    /* NEW STYLES FOR LABELS */
+    .toggle-label {
+        position: absolute;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: opacity 0.3s;
+        z-index: 2;
+        pointer-events: none;
+        /* Vertically center the label */
+        line-height: 26px;
+        height: 26px;
+    }
+
+    .ad-label {
+        left: 8px;
+        color: #fca5a5; /* Lighter red for visibility */
+    }
+
+    .ap-label {
+        right: 8px;
+        color: #c4b5fd; /* Lighter purple for visibility */
+    }
+
+    .toggle-label.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+    /* END NEW STYLES FOR LABELS */
+
+
+    .toggle-thumb {
+        width: 26px;
+        height: 26px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: left 0.3s;
+        z-index: 1; /* Ensures thumb is above the labels */
+    }
+
+    /* Move the thumb when AP is selected */
+    .toggle-track.ap .toggle-thumb {
+        left: 32px;
+    }
+
     .items-page {
         width: 100%;
     }

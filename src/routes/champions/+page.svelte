@@ -1,12 +1,12 @@
 <script lang="ts">
-    type Champion = {
-        id: number;
+    import type { Champion } from "$lib/stores/champions";
+
+    type Role = {
         name: string;
-        role: string;
-        image: string;
+        icon?: string;
     };
 
-    // Mock champion data - replace with real data from DDragon later
+    // Mock champion data
     const allChampions: Champion[] = [
         { id: 1, name: "Aatrox", role: "Top", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Aatrox_0.jpg" },
         { id: 2, name: "Ahri", role: "Mid", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ahri_0.jpg" },
@@ -30,7 +30,15 @@
         { id: 20, name: "Fiora", role: "Top", image: "https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Fiora_0.jpg" },
     ];
 
-    const roles = ["All", "Top", "Jungle", "Mid", "ADC", "Support"];
+    const roles: Role[] = [
+        { name: "All" },
+        { name: "Top", icon: "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-champ-select/global/default/svg/position-top.svg" },
+        { name: "Jungle", icon: "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-champ-select/global/default/svg/position-jungle.svg" },
+        { name: "Mid", icon: "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-champ-select/global/default/svg/position-middle.svg" },
+        { name: "ADC", icon: "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-champ-select/global/default/svg/position-bottom.svg" },
+        { name: "Support", icon: "https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-champ-select/global/default/svg/position-utility.svg" }
+    ];
+
     let selectedRole = "All";
     let selectedChampion: Champion | null = null;
 
@@ -55,10 +63,15 @@
         {#each roles as role}
             <button
                     class="role-btn"
-                    class:active={selectedRole === role}
-                    on:click={() => selectedRole = role}
+                    class:active={selectedRole === role.name}
+                    on:click={() => selectedRole = role.name}
+                    title={role.name}
             >
-                {role}
+                {#if role.icon}
+                    <img src={role.icon} alt={role.name} class="role-icon" />
+                {:else}
+                    {role.name}
+                {/if}
             </button>
         {/each}
     </div>
@@ -140,6 +153,27 @@
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 50px;
+    }
+
+    .role-icon {
+        width: 24px;
+        height: 24px;
+        filter: brightness(0) invert(1);
+        opacity: 0.7;
+        transition: all 0.2s;
+    }
+
+    .role-btn:hover .role-icon {
+        opacity: 1;
+    }
+
+    .role-btn.active .role-icon {
+        opacity: 1;
+        filter: brightness(0) saturate(100%) invert(64%) sepia(58%) saturate(458%) hue-rotate(183deg) brightness(101%) contrast(96%);
     }
 
     .role-btn:hover {
