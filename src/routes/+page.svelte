@@ -1,28 +1,32 @@
 <script lang="ts">
-  import TestChampionCard from "$lib/components/TestChampionCard.svelte";
-  import type { Champion } from "$lib/stores/types";
+import RoleSelector from "$lib/components/RoleSelector.svelte";
+import TestChampionCard from "$lib/components/TestChampionCard.svelte";
+import type { Champion, Role } from "$lib/stores/types";
+import { demochampions } from '$lib/stores/demo-champions';
 
-  const demoChamp: Champion[] = [
-    {id: 'ahri',
-    name: 'Ahri', 
-    title: 'The Nine-Tailed Fox',
-    imageUrl: 'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Ahri_0.jpg'},
-    {id: 'akali', 
-    name: 'Akali', 
-    title: 'The Rogue Assassin',
-    imageUrl: 'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Akali_0.jpg'},
-    {id: 'alistar',
-     name: 'Alistar',
-     title: 'THe Minortaur',
-     imageUrl: 'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/Alistar_0.jpg'}
-  ];
+  let champions: Champion[] = demochampions;
+  let selectedRole: 'All' | Role = 'All';
+
+  $: filteredChampions = 
+      selectedRole === 'All'
+        ? champions
+        : champions.filter((c)=> c.roles.includes(selectedRole as Role));
 
 </script>
 
 <main class="container">
-  <h1>IntStats DashBoard</h1>
+  <section class="section-header">
+    <h1>Champion Select</h1>
+    <p>Browse and filter champions by role</p>
+  </section>
+
+  <RoleSelector
+    selected={selectedRole}
+    onSelect={(role) => (selectedRole = role)}
+  />
+
   <div class="grid">
-    {#each demoChamp as champs}
+    {#each filteredChampions as champs}
       <TestChampionCard champion = {champs} />
     {/each}
   </div>
@@ -32,7 +36,16 @@
   .container{
     display: flex;
     flex-direction: column;
-    gap: 0,75rem;
+    gap: 1.75rem;
+  }
+  .section-header{
+    margin: 0;
+    font-size: 1.4rem;
+  }
+  .section-header p{
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #9ca3af;
   }
   .grid{
     display: grid;

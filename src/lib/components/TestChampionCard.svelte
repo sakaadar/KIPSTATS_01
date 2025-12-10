@@ -6,10 +6,8 @@
 </script>
 
 <div class="card">
-    <div
-        class="card-image"
-        style={`background-image: url(${champion.imageUrl});`}
-    ></div>
+    <img src={champion.imageUrl} alt={champion.name} />
+ 
 
     <div class="card-footer">
         <h2>{champion.name}</h2>
@@ -17,31 +15,47 @@
     </div>
 </div>
 <style>
-    .card{
-        display: flex;
-        flex-direction: column;
-        border-radius: 0.6rem;
-        overflow: hidden;
-        background: #020617;
-        border: 1px solid rgba(148, 163, 184, 0.5);
-        height: 260px;
-    }
-    .card-image{
-        flex: 1;
-        background-size: cover;
-        background-position: center;
-    }
-    .card-footer{
-        padding: 0.5rem 0.7rem;
-        background: rgba(15,23,42,0.95)
-    }
-    .card-footer h2{
-        margin: 0 0 0.15rem;
-        font-size: 0.95rem;
-    }
-    .card-footer p{
-        margin: 0;
-        font-size: 0.8rem;
-        color: #9ca3af;
-    }
+  .card {
+    position: relative;
+    border-radius: 0.6rem;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #020617;
+    aspect-ratio: 2 / 3; /* højt kort ligesom LoL */
+  }
+
+  .card img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: top center; /* lidt mere fokus på ansigt/overkrop */
+  }
+
+  .card-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0.45rem 0.8rem 0.55rem;
+    background: linear-gradient(
+      to top,
+      rgba(15, 23, 42, 0.98),
+      rgba(15, 23, 42, 0.6),
+      rgba(15, 23, 42, 0)
+    );
+  }
+
+  .card-footer h2 {
+    margin: 0;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .card-footer p {
+    margin: 0.15rem 0 0;
+    font-size: 0.75rem;
+    opacity: 0.9;
+  }
 </style>

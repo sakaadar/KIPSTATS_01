@@ -35,7 +35,7 @@
     /*Selve "dashboardet-kortet" hvor alt indholdet ligger */
     .app-shell{
         width: 100%;
-        max-width: 1400px;
+        max-width: 1600px;
         min-height: calc(100vh - 4.5rem);
         padding: 1.5rem 1.75rem 1.75rem;
         box-sizing: border-box;
