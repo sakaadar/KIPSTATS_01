@@ -5,3 +5,7 @@ export interface Champion {
     image: string;
 }
 
+export interface Role {
+    name: string;
+    icon?: string;
+};

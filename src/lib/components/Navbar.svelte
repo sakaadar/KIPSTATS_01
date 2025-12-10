@@ -6,29 +6,19 @@
     { href: '/items', label: 'Items' }
   ];
 
-  let showRiotKeyModal = false;
+  let showModal = false;
   let riotKey = '';
 
   $: currentPath = $page.url.pathname;
 
-  function openRiotKeyModal() {
-    showRiotKeyModal = true;
-  }
+  const openModal = () => (showModal = true);
+  const closeModal = () => (showModal = false);
 
-  function closeModal() {
-    showRiotKeyModal = false;
-  }
-
-  function handleSubmit() {
-    if (riotKey.trim()) {
-      // Here you can store the key or send it to your backend
-      console.log('Riot API Key submitted:', riotKey);
-      // For now, just close the modal
-      showRiotKeyModal = false;
-      // Optionally clear the input or keep it
-      // riotKey = '';
-    }
-  }
+  const handleSubmit = () => {
+    if (!riotKey.trim()) return;
+    console.log("Riot API Key:", riotKey);
+    closeModal();
+  };
 </script>
 
 <nav class="navbar">
@@ -38,22 +28,27 @@
     {#each navLinks as link}
       <a
               href={link.href}
-              class="nav-link"
-              class:active={currentPath === link.href}
+              class="nav-link {currentPath === link.href ? 'active' : ''}"
       >
         {link.label}
       </a>
     {/each}
-    <button class="nav-link user-btn" on:click|preventDefault={openRiotKeyModal}>
+
+    <button class="nav-link user-btn" on:click|preventDefault={openModal}>
       User
     </button>
   </div>
 </nav>
 
-<!-- Riot Key Modal -->
-{#if showRiotKeyModal}
+{#if showModal}
   <div class="modal-backdrop" on:click={closeModal}>
-    <div class="modal-content" on:click|stopPropagation>
+    <div
+            class="modal-content"
+            role="dialog"
+            aria-modal="true"
+            on:click|stopPropagation
+            tabindex="-1"
+    >
       <h2>Enter Your Riot API Key</h2>
 
       <div class="input-group">
@@ -63,7 +58,7 @@
                 type="text"
                 bind:value={riotKey}
                 placeholder="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                class="riot-key-input"
+                autofocus
         />
       </div>
 
@@ -76,6 +71,7 @@
 {/if}
 
 <style>
+  /* NAVBAR */
   .navbar {
     display: flex;
     align-items: center;
@@ -91,7 +87,6 @@
     background: linear-gradient(135deg, #60a5fa, #a78bfa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
   }
 
   .nav-links {
@@ -101,21 +96,20 @@
   }
 
   .nav-link {
-    padding: 0.6rem 1.5rem;
-    text-decoration: none;
-    color: #e5e7eb;
-    font-size: 0.9rem;
+    padding: 0.55rem 1.25rem;
     border-radius: 6px;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-    background: none;
     cursor: pointer;
-    font-family: inherit;
+    font-size: 0.9rem;
+    text-decoration: none;
+    background: none;
+    border: 1px solid transparent;
+    color: #e5e7eb;
+    transition: 150ms ease;
   }
 
   .nav-link:hover {
-    background: rgba(96, 165, 250, 0.15);
-    border-color: rgba(96, 165, 250, 0.3);
+    background: rgba(96, 165, 250, 0.12);
+    border-color: rgba(96, 165, 250, 0.22);
   }
 
   .nav-link.active {
@@ -124,16 +118,17 @@
     color: #60a5fa;
   }
 
-  /* Modal Styles */
+  /* MODAL */
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 3000;
     padding: 2rem;
+    z-index: 3000;
+    animation: fadeIn 0.2s ease;
   }
 
   .modal-content {
@@ -141,89 +136,95 @@
     border: 1px solid rgba(60, 89, 130, 0.5);
     border-radius: 12px;
     padding: 2rem;
-    max-width: 500px;
+    max-width: 480px;
     width: 100%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
+    animation: scaleIn 0.2s ease;
   }
 
   .modal-content h2 {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.5rem;
-    color: #f5f5f5;
+    margin-bottom: 1.25rem;
     text-align: center;
+    color: #f5f5f5;
   }
 
   .input-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
   }
 
   .input-group label {
     color: #9ca3af;
     font-size: 0.9rem;
-    font-weight: 500;
   }
 
-  .riot-key-input {
+  input {
     padding: 0.75rem 1rem;
     background: rgba(30, 41, 59, 0.6);
     border: 1px solid rgba(96, 165, 250, 0.3);
     border-radius: 6px;
     color: #f5f5f5;
-    font-size: 0.9rem;
     font-family: monospace;
-    transition: all 0.2s;
+    transition: 0.2s ease;
   }
 
-  .riot-key-input:focus {
+  input:focus {
     outline: none;
     border-color: #60a5fa;
     background: rgba(30, 41, 59, 0.8);
   }
 
-  .riot-key-input::placeholder {
+  input::placeholder {
     color: rgba(156, 163, 175, 0.5);
   }
 
   .modal-actions {
     display: flex;
-    gap: 1rem;
     justify-content: flex-end;
+    gap: 1rem;
   }
 
   .cancel-btn,
   .submit-btn {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1.4rem;
     border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
     border: 1px solid transparent;
+    font-size: 0.9rem;
+    transition: 0.2s ease;
   }
 
   .cancel-btn {
-    background: rgba(107, 114, 128, 0.2);
+    background: rgba(107, 114, 128, 0.18);
     border-color: rgba(107, 114, 128, 0.4);
     color: #d1d5db;
   }
 
   .cancel-btn:hover {
-    background: rgba(107, 114, 128, 0.3);
-    border-color: rgba(107, 114, 128, 0.6);
+    background: rgba(107, 114, 128, 0.28);
   }
 
   .submit-btn {
-    background: rgba(96, 165, 250, 0.2);
+    background: rgba(96, 165, 250, 0.18);
     border-color: rgba(96, 165, 250, 0.5);
     color: #60a5fa;
   }
 
   .submit-btn:hover {
-    background: rgba(96, 165, 250, 0.3);
-    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.28);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.93); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
 </style>

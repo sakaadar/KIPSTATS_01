@@ -1,10 +1,6 @@
 <script lang="ts">
-    import type { Champion } from "$lib/stores/champions";
+    import type {Champion, Role} from "$lib/stores/champions";
 
-    type Role = {
-        name: string;
-        icon?: string;
-    };
 
     // Mock champion data
     const allChampions: Champion[] = [

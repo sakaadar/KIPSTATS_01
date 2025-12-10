@@ -1,6 +1,9 @@
 <script lang="ts">
-    // Mock item data - replace with real data from DDragon later
-    const allItems = [
+
+    import type { Item} from "$lib/stores/items";
+
+    // Mock item data
+    const allItems: Item[] = [
         { id: 1, name: "Blade of the Ruined King", type: "AD", hasAS: true, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/3153.png" },
         { id: 2, name: "Infinity Edge", type: "AD", hasAS: false, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/3031.png" },
         { id: 3, name: "Rabadon's Deathcap", type: "AP", hasAS: false, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/3089.png" },
@@ -23,22 +26,33 @@
         { id: 20, name: "Luden's Tempest", type: "AP", hasAS: false, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/6653.png" },
     ];
 
-    let selectedType = "AD"; // Changed default to AD for initial toggle visibility
-    let showAS = false; // Attack Speed filter
-    let selectedItem: any = null;
+    let selectedType = "AD";
+    let showAS = false;
+    let selectedItem: Item | null = null;
 
-    $: filteredItems = allItems.filter(item => {
+    $: filteredItems = allItems.filter((item: Item) => {
         const typeMatch = selectedType === "All" || item.type === selectedType;
         const asMatch = !showAS || item.hasAS;
         return typeMatch && asMatch;
     });
 
-    function openItemModal({item}: { item: any }) {
+    function openItemModal(item: Item) {
         selectedItem = item;
     }
 
     function closeModal() {
         selectedItem = null;
+    }
+
+    function toggleADorAP() {
+        selectedType = selectedType === "AD" ? "AP" : "AD";
+    }
+
+    function handleToggleKeydown(event: KeyboardEvent) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            toggleADorAP();
+        }
     }
 </script>
 
@@ -55,15 +69,19 @@
                 All
             </button>
 
-            <div class="toggle-switch" on:click={() => selectedType = selectedType === "AD" ? "AP" : "AD"}>
+            <button
+                    class="toggle-switch"
+                    on:click={toggleADorAP}
+                    on:keydown={handleToggleKeydown}
+                    aria-label="Toggle between AD and AP items"
+            >
                 <div class="toggle-track" class:ad={selectedType === "AD"} class:ap={selectedType === "AP"}>
                     <span class="toggle-label ad-label" class:hidden={selectedType === 'AP'}>AD</span>
                     <span class="toggle-label ap-label" class:hidden={selectedType === 'AD'}>AP</span>
                     <div class="toggle-thumb"></div>
                 </div>
-            </div>
+            </button>
         </div>
-
 
         <button
                 class="as-filter-btn"
@@ -76,7 +94,7 @@
 
     <div class="items-grid">
         {#each filteredItems as item (item.id)}
-            <div class="item-card" on:click={() => openItemModal({item : item})}>
+            <button class="item-card" on:click={() => openItemModal(item)}>
                 <div class="item-image-wrapper">
                     <img src={item.image} alt={item.name} class="item-image" />
                     <div class="item-overlay">
@@ -84,19 +102,19 @@
                     </div>
                 </div>
                 <h3 class="item-name">{item.name}</h3>
-            </div>
+            </button>
         {/each}
     </div>
 </div>
 
 {#if selectedItem}
-    <div class="modal-backdrop" on:click={closeModal}>
-        <div class="modal-content" on:click|stopPropagation>
-            <button class="close-btn" on:click={closeModal}>×</button>
+    <div class="modal-backdrop" on:click={closeModal} role="presentation">
+        <div class="modal-content" on:click|stopPropagation role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+            <button class="close-btn" on:click={closeModal} aria-label="Close modal">×</button>
 
             <div class="modal-header">
                 <img src={selectedItem.image} alt={selectedItem.name} class="modal-item-image" />
-                <h2>{selectedItem.name}</h2>
+                <h2 id="modal-title">{selectedItem.name}</h2>
             </div>
 
             <div class="modal-body">
@@ -114,85 +132,6 @@
 {/if}
 
 <style>
-
-
-    /* Toggle switch styles */
-    .toggle-switch {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        margin-left: 0.5rem;
-    }
-
-    .toggle-track {
-        width: 60px;
-        height: 30px;
-        background: #ccc;
-        border-radius: 30px;
-        position: relative;
-        overflow: visible;
-        transition: background 0.3s;
-        /* ADDED for label positioning */
-        display: flex;
-        align-items: center;
-        padding: 0 5px;
-    }
-
-    .toggle-track.ad {
-        background: #ef4444; /* Red for AD */
-    }
-
-    .toggle-track.ap {
-        background: #a78bfa; /* Purple for AP */
-    }
-
-    /* NEW STYLES FOR LABELS */
-    .toggle-label {
-        position: absolute;
-        font-size: 0.8rem;
-        font-weight: 700;
-        transition: opacity 0.3s;
-        z-index: 2;
-        pointer-events: none;
-        /* Vertically center the label */
-        line-height: 26px;
-        height: 26px;
-    }
-
-    .ad-label {
-        left: 8px;
-        color: #fca5a5; /* Lighter red for visibility */
-    }
-
-    .ap-label {
-        right: 8px;
-        color: #c4b5fd; /* Lighter purple for visibility */
-    }
-
-    .toggle-label.hidden {
-        opacity: 0;
-        visibility: hidden;
-    }
-    /* END NEW STYLES FOR LABELS */
-
-
-    .toggle-thumb {
-        width: 26px;
-        height: 26px;
-        background: white;
-        border-radius: 50%;
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        transition: left 0.3s;
-        z-index: 1; /* Ensures thumb is above the labels */
-    }
-
-    /* Move the thumb when AP is selected */
-    .toggle-track.ap .toggle-thumb {
-        left: 32px;
-    }
-
     .items-page {
         width: 100%;
     }
@@ -244,14 +183,78 @@
         color: #60a5fa;
     }
 
-    .filter-btn.ad.active {
-        background: rgba(239, 68, 68, 0.3);
-        color: #ef4444;
+    /* Toggle switch styles */
+    .toggle-switch {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        margin-left: 0.5rem;
+        background: transparent;
+        border: none;
+        padding: 0;
     }
 
-    .filter-btn.ap.active {
-        background: rgba(139, 92, 246, 0.3);
-        color: #a78bfa;
+    .toggle-track {
+        width: 60px;
+        height: 30px;
+        background: #ccc;
+        border-radius: 30px;
+        position: relative;
+        overflow: visible;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+    }
+
+    .toggle-track.ad {
+        background: #ef4444;
+    }
+
+    .toggle-track.ap {
+        background: #a78bfa;
+    }
+
+    .toggle-label {
+        position: absolute;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: opacity 0.3s;
+        z-index: 2;
+        pointer-events: none;
+        line-height: 26px;
+        height: 26px;
+    }
+
+    .ad-label {
+        left: 8px;
+        color: #fca5a5;
+    }
+
+    .ap-label {
+        right: 8px;
+        color: #c4b5fd;
+    }
+
+    .toggle-label.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .toggle-thumb {
+        width: 26px;
+        height: 26px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: left 0.3s;
+        z-index: 1;
+    }
+
+    .toggle-track.ap .toggle-thumb {
+        left: 32px;
     }
 
     .as-filter-btn {
@@ -286,6 +289,10 @@
         cursor: pointer;
         transition: transform 0.2s;
         text-align: center;
+        background: transparent;
+        border: none;
+        padding: 0;
+        width: 100%;
     }
 
     .item-card:hover {
