@@ -8,7 +8,7 @@
 </script>
 
 <nav class="navbar">
-  <div class="logo">InStats</div>
+  <div class="logo">IntStats</div>
 
   <div class="links">
     {#each links as link}
@@ -19,16 +19,17 @@
 
 <style>
     .navbar {
+        height: 56px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.75rem 1.5rem;
+        padding: 2.5rem;
+        background: linear-gradient(to bottom, #5b61c8, #4b51b3);
         border-bottom: 1px solid #333;
-        color: #f5f5f5;
     }
     .links{
         display: flex;
-        gap: 1rem;
+        gap: 5rem;
         font-size: 0.9rem;
     }
     .links a{

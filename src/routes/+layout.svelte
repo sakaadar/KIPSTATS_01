@@ -29,7 +29,7 @@
         flex: 1;
         display: flex;
         justify-content: center;
-        padding: 1rem 1,5rem;
+        padding: 2.5rem 2,5rem 3rem;
         box-sizing: border-box;
     }
     /*Selve "dashboardet-kortet" hvor alt indholdet ligger */
@@ -52,6 +52,7 @@
                 0 18px 45px rgba( 15, 23, 42, 0.9),
                 0 0 1px rgba(15,23, 42, 0.7);        
     }
+    
     @media(max-width: 900px){
         .app-main {
             padding: 0.5rem;
