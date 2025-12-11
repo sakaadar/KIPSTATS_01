@@ -49,8 +49,26 @@ import { demochampions } from '$lib/stores/demo-champions';
   }
   .grid{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(1, minmax(0, 1fr));
     gap: 1.2rem;
     align-items: stretch;
+  }
+
+  /*Tablet */
+  @media (min-width: 640px) {
+    .grid{
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+  }
+  /*Lille desktop */
+  @media (min-width: 990px){
+     .grid{
+      grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+  }
+  @media (min-width: 1200px){
+     .grid{
+      grid-template-columns: repeat(4, minmax(0,1fr));
+    }
   }
 </style>
