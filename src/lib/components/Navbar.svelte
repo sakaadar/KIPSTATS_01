@@ -71,7 +71,6 @@
 {/if}
 
 <style>
-  /* NAVBAR */
   .navbar {
     display: flex;
     align-items: center;
@@ -227,4 +226,5 @@
     from { transform: scale(0.93); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
   }
+
 </style>

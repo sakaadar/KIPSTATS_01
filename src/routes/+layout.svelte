@@ -40,16 +40,16 @@
         box-sizing: border-box;
 
         border-radius: 12px;
-        background: 
+        background:
                 linear-gradient(
-                    135deg,
-                    rgba(15, 23, 42, 0.98),
-                    rgba(17, 24, 39, 0.98)
+                        135deg,
+                        rgba(15, 23, 42, 0.98),
+                        rgba(17, 24, 39, 0.98)
                 );
         border: 1px solid rgba(60, 89, 130, 0.65);
-        box-shadow: 
+        box-shadow:
                 0 18px 45px rgba( 15, 23, 42, 0.9),
-                0 0 1px rgba(15,23, 42, 0.7);        
+                0 0 1px rgba(15,23, 42, 0.7);
     }
     @media(max-width: 900px){
         .app-main {
@@ -60,4 +60,5 @@
             border-radius: 10px;
         }
     }
+
 </style>
