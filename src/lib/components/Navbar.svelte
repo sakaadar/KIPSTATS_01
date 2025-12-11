@@ -19,12 +19,11 @@
 
 <style>
     .navbar {
-        height: 56px;
+        height: 45px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 2.5rem;
-        background: linear-gradient(to bottom, #5b61c8, #4b51b3);
         border-bottom: 1px solid #333;
     }
     .links{
@@ -33,12 +32,12 @@
         font-size: 0.9rem;
     }
     .links a{
-        text-decoration: none;
+        text-decoration: solid;
         color: inherit;
-        opacity: 0.8;
+        opacity: 0.5;
     }
     .links a:hover, .links a:focus{
         opacity: 1;
-        text-decoration: underline;
+        text-decoration: none;
     }
 </style>

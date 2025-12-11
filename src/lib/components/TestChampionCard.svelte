@@ -21,15 +21,13 @@
     overflow: hidden;
     border: 1px solid rgba(148, 163, 184, 0.4);
     background: #020617;
-  /*  aspect-ratio: 2 / 3;  højt kort ligesom LoL */
   }
-  .card :hover{
+  .card:hover{
     transform: translateY(-6px);
      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
   }
-  .card :hover .card-image{
-    transform: scale(1.05);
-    filter: brightness(1.05) saturate(1.05);
+  .card:hover img{
+    transform: scale(1.08);
   }
 
   .card :hover::before{
