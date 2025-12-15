@@ -78,12 +78,12 @@
         {#each filteredChampions as champion (champion.id)}
             <div class="champion-card" on:click={() => openChampionModal(champion)}>
                 <div class="champion-image-wrapper">
+                    <div class="champion-name-overlay">{champion.name}</div>
                     <img src={champion.image} alt={champion.name} class="champion-image" />
                     <div class="champion-overlay">
                         <span class="view-details">View Details</span>
                     </div>
                 </div>
-                <h3 class="champion-name">{champion.name}</h3>
             </div>
         {/each}
     </div>

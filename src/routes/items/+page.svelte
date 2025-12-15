@@ -96,21 +96,24 @@
     <div class="items-grid">
         {#each filteredItems as item (item.id)}
             <button class="item-card" on:click={() => openItemModal(item)}>
+
                 <div class="item-image-wrapper">
                     <img src={item.image} alt={item.name} class="item-image" />
+
                     <div class="item-overlay">
                         <span class="view-details">View Details</span>
                     </div>
-                    <div class="item-name-banner">
-                        <h3 class="item-name">{item.name}</h3>
-                    </div>
                 </div>
+                <div class="item-name-banner">
+                    {item.name}
+                </div>
+
             </button>
         {/each}
     </div>
-</div>
 
-{#if selectedItem}
+
+    {#if selectedItem}
     <div class="modal-backdrop" on:click={closeModal} role="presentation">
         <div class="modal-content" on:click|stopPropagation role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
             <button class="close-btn" on:click={closeModal} aria-label="Close modal">×</button>
@@ -133,4 +136,4 @@
         </div>
     </div>
 {/if}
-
+</div>
