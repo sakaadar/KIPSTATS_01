@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import '../app.css';
     import Navbar from "$lib/components/Navbar.svelte";
 </script>
@@ -38,7 +38,6 @@
         padding: 1rem 1.5rem;
         box-sizing: border-box;
     }
-    /*Selve "dashboardet-kortet" hvor alt indholdet ligger */
     .app-shell{
         width: 100%;
         max-width: 1400px;
