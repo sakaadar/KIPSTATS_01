@@ -1,22 +1,42 @@
-<script>
+<script lang="ts">
   import { page } from '$app/stores';
 
-  const navLinks = [
+  let menuOpen: boolean = false;
+
+  const openMenu = (): void => {
+    menuOpen = true;
+  };
+
+  const closeMenu = (): void => {
+    menuOpen = false;
+  };
+
+  interface NavLink {
+    href: string;
+    label: string;
+  }
+
+  const navLinks: NavLink[] = [
     { href: '/champions', label: 'Champions' },
     { href: '/items', label: 'Items' }
   ];
 
-  let showModal = false;
-  let riotKey = '';
+  let showModal: boolean = false;
+  let riotKey: string = '';
 
   $: currentPath = $page.url.pathname;
 
-  const openModal = () => (showModal = true);
-  const closeModal = () => (showModal = false);
+  const openModal = (): void => {
+    showModal = true;
+  };
 
-  const handleSubmit = () => {
+  const closeModal = (): void => {
+    showModal = false;
+  };
+
+  const handleSubmit = (): void => {
     if (!riotKey.trim()) return;
-    console.log("Riot API Key:", riotKey);
+    console.log('Riot API Key:', riotKey);
     closeModal();
   };
 </script>
@@ -24,47 +44,65 @@
 <nav class="navbar">
   <div class="logo">IntStats</div>
 
-  <div class="nav-links">
-    {#each navLinks as link}
-      <a
-              href={link.href}
-              class="nav-link {currentPath === link.href ? 'active' : ''}"
-      >
-        {link.label}
-      </a>
-    {/each}
-
-    <button class="nav-link user-btn" on:click|preventDefault={openModal}>
-      User
-    </button>
-  </div>
+  <button
+          class="hamburger-btn"
+          on:click={openMenu}
+          aria-label="Open menu"
+  >
+    ☰
+  </button>
 </nav>
 
+{#if menuOpen}
+  <div class="sidebar-backdrop" on:click={closeMenu}>
+    <aside class="sidebar" on:click|stopPropagation>
+      {#each navLinks as link}
+        <a
+                href={link.href}
+                class="sidebar-link {currentPath === link.href ? 'active' : ''}"
+                on:click={closeMenu}
+        >
+          {link.label}
+        </a>
+      {/each}
+
+      <button
+              type="button"
+              class="sidebar-link"
+              on:click={() => {
+          closeMenu();
+          openModal();
+        }}
+      >
+        User
+      </button>
+    </aside>
+  </div>
+{/if}
+
+<!-- MODAL (was missing!) -->
 {#if showModal}
   <div class="modal-backdrop" on:click={closeModal}>
-    <div
-            class="modal-content"
-            role="dialog"
-            aria-modal="true"
-            on:click|stopPropagation
-            tabindex="-1"
-    >
-      <h2>Enter Your Riot API Key</h2>
+    <div class="modal-content" on:click|stopPropagation>
+      <h2>Enter Riot API Key</h2>
 
       <div class="input-group">
-        <label for="riot-key">Riot Key</label>
+        <label for="riot-key">API Key</label>
         <input
                 id="riot-key"
                 type="text"
                 bind:value={riotKey}
                 placeholder="RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                autofocus
         />
       </div>
 
       <div class="modal-actions">
-        <button class="cancel-btn" on:click={closeModal}>Cancel</button>
-        <button class="submit-btn" on:click={handleSubmit}>Enter</button>
+        <button class="cancel-btn" on:click={closeModal}>
+          Cancel
+        </button>
+        <button class="submit-btn" on:click={handleSubmit}>
+          Submit
+        </button>
       </div>
     </div>
   </div>
@@ -88,33 +126,78 @@
     -webkit-text-fill-color: transparent;
   }
 
-  .nav-links {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .nav-link {
-    padding: 0.55rem 1.25rem;
+  .hamburger-btn {
+    font-size: 1.4rem;
+    background: none;
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    color: #facc15;
+    padding: 0.4rem 0.75rem;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
-    text-decoration: none;
+  }
+
+  .hamburger-btn:hover {
+    background: rgba(250, 204, 21, 0.15);
+  }
+
+  /* BACKDROP */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2500;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 260px;
+    height: 100%;
+    padding: 1.5rem;
+    background: linear-gradient(
+            180deg,
+            rgba(15, 23, 42, 0.98),
+            rgba(17, 24, 39, 0.98)
+    );
+    border-left: 1px solid rgba(250, 204, 21, 0.4);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: slideIn 0.25s ease-out;
+  }
+
+  .sidebar-link {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    text-align: left;
     background: none;
     border: 1px solid transparent;
     color: #e5e7eb;
-    transition: 150ms ease;
+    font-size: 0.95rem;
+    cursor: pointer;
   }
 
-  .nav-link:hover {
-    background: rgba(96, 165, 250, 0.12);
-    border-color: rgba(96, 165, 250, 0.22);
+  .sidebar-link:hover {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
   }
 
-  .nav-link.active {
-    background: rgba(96, 165, 250, 0.2);
-    border-color: rgba(96, 165, 250, 0.5);
-    color: #60a5fa;
+  .sidebar-link.active {
+    background: rgba(250, 204, 21, 0.2);
+    border-color: rgba(250, 204, 21, 0.6);
+    color: #facc15;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
   }
 
   /* MODAL */
@@ -216,7 +299,6 @@
     background: rgba(96, 165, 250, 0.28);
   }
 
-  /* ANIMATIONS */
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -226,5 +308,4 @@
     from { transform: scale(0.93); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
   }
-
 </style>

@@ -1,9 +1,7 @@
 <script lang="ts">
+    import type { Item } from "$lib/stores/items";
+    import "$lib/styles/items.css";
 
-    import type { Item} from "$lib/stores/items";
-    import '$lib/styles/items.css';
-
-    // Mock item data
     const allItems: Item[] = [
         { id: 1, name: "Blade of the Ruined King", type: "AD", hasAS: true, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/3153.png" },
         { id: 2, name: "Infinity Edge", type: "AD", hasAS: false, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/3031.png" },
@@ -27,113 +25,89 @@
         { id: 20, name: "Luden's Tempest", type: "AP", hasAS: false, image: "https://ddragon.leagueoflegends.com/cdn/13.24.1/img/item/6653.png" },
     ];
 
-    let selectedType = "AD";
+    let selectedType: "All" | "AD" | "AP" = "All";
     let showAS = false;
-    let selectedItem: Item | null = null;
 
-    $: filteredItems = allItems.filter((item: Item) => {
+    let expandedItems = new Set<number>();
+    let fabOpen = false;
+
+    $: filteredItems = allItems.filter(item => {
         const typeMatch = selectedType === "All" || item.type === selectedType;
         const asMatch = !showAS || item.hasAS;
         return typeMatch && asMatch;
     });
 
-    function openItemModal(item: Item) {
-        selectedItem = item;
+    function toggleItem(id: number): void {
+        expandedItems.has(id) ? expandedItems.delete(id) : expandedItems.add(id);
+        expandedItems = new Set(expandedItems);
     }
 
-    function closeModal() {
-        selectedItem = null;
-    }
-
-    function toggleADorAP() {
-        selectedType = selectedType === "AD" ? "AP" : "AD";
-    }
-
-    function handleToggleKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            toggleADorAP();
-        }
+    function setType(type: "All" | "AD" | "AP"): void {
+        selectedType = type;
     }
 </script>
 
 <div class="items-page">
     <h1 class="page-title">Items</h1>
 
-    <div class="item-filters">
-        <div class="type-filter">
-            <button
-                    class="filter-btn"
-                    class:active={selectedType === "All"}
-                    on:click={() => selectedType = "All"}
-            >
-                All
-            </button>
+    <ol class="items-list">
+        {#each filteredItems as item (item.id)}
+            <li class="item-row">
+                <img src={item.image} alt={item.name} class="item-row-image" />
 
-            <button
-                    class="toggle-switch"
-                    on:click={toggleADorAP}
-                    on:keydown={handleToggleKeydown}
-                    aria-label="Toggle between AD and AP items"
-            >
-                <div class="toggle-track" class:ad={selectedType === "AD"} class:ap={selectedType === "AP"}>
-                    <span class="toggle-label ad-label" class:hidden={selectedType === 'AP'}>AD</span>
-                    <span class="toggle-label ap-label" class:hidden={selectedType === 'AD'}>AP</span>
-                    <div class="toggle-thumb"></div>
-                </div>
-            </button>
-        </div>
+                <button
+                        class="item-row-name"
+                        on:click={() => toggleItem(item.id)}
+                        aria-expanded={expandedItems.has(item.id)}
+                >
+                    <span>{item.name}</span>
+                    <span class="chevron">{expandedItems.has(item.id) ? "▲" : "▼"}</span>
+                </button>
 
-        <button
-                class="as-filter-btn"
-                class:active={showAS}
-                on:click={() => showAS = !showAS}
-        >
-            AS
+                {#if expandedItems.has(item.id)}
+                    <div class="item-details">
+                        <h4>Description</h4>
+                        <p>Lorem ipsum dolor sit amet.</p>
+
+                        <h4>Stats</h4>
+                        <p>+50 AD<br />+30% AS</p>
+                    </div>
+                {/if}
+            </li>
+        {/each}
+    </ol>
+
+    <div class="fab-container">
+        {#if fabOpen}
+            <div class="fab-options">
+                <button
+                        class="fab-option"
+                        class:active={selectedType === "All" && !showAS}
+                        on:click={() => { selectedType = "All"; showAS = false; }}
+                >🧩</button>
+
+                <button
+                        class="fab-option"
+                        class:active={selectedType === "AD"}
+                        on:click={() => { setType("AD"); showAS = false; }}
+                >⚔️</button>
+
+                <button
+                        class="fab-option"
+                        class:active={selectedType === "AP"}
+                        on:click={() => { setType("AP"); showAS = false; }}
+                >🔮</button>
+
+                <button
+                        class="fab-option"
+                        class:active={showAS}
+                        on:click={() => showAS = !showAS}
+                >⚡</button>
+            </div>
+        {/if}
+
+        <button class="fab-main" on:click={() => fabOpen = !fabOpen}>
+            {fabOpen ? "×" : "☰"}
         </button>
     </div>
-
-    <div class="items-grid">
-        {#each filteredItems as item (item.id)}
-            <button class="item-card" on:click={() => openItemModal(item)}>
-
-                <div class="item-image-wrapper">
-                    <img src={item.image} alt={item.name} class="item-image" />
-
-                    <div class="item-overlay">
-                        <span class="view-details">View Details</span>
-                    </div>
-                </div>
-                <div class="item-name-banner">
-                    {item.name}
-                </div>
-
-            </button>
-        {/each}
-    </div>
-
-
-    {#if selectedItem}
-    <div class="modal-backdrop" on:click={closeModal} role="presentation">
-        <div class="modal-content" on:click|stopPropagation role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
-            <button class="close-btn" on:click={closeModal} aria-label="Close modal">×</button>
-
-            <div class="modal-header">
-                <img src={selectedItem.image} alt={selectedItem.name} class="modal-item-image" />
-                <h2 id="modal-title">{selectedItem.name}</h2>
-            </div>
-
-            <div class="modal-body">
-                <h3>Description</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-
-                <h3>Stats</h3>
-                <p>+50 Attack Damage<br>+30% Attack Speed<br>+20% Critical Strike Chance</p>
-
-                <h3>Passive</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-            </div>
-        </div>
-    </div>
-{/if}
 </div>

@@ -16,8 +16,15 @@
     :global(body){
         margin: 0;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        background-color: hwb(231 4% 44% / 0.662);
-        color: #e5e7eb;
+        background:
+                radial-gradient(
+                        circle at top,
+                        rgba(34, 197, 94, 0.08),
+                        transparent 60%
+                ),
+                #0b1220;
+
+        color: var(--text-main);
     }
     .app-root{
         min-height: 100vh;
@@ -46,10 +53,12 @@
                         rgba(15, 23, 42, 0.98),
                         rgba(17, 24, 39, 0.98)
                 );
-        border: 1px solid rgba(60, 89, 130, 0.65);
+
+        border: 1px solid var(--border-gold);
+
         box-shadow:
-                0 18px 45px rgba( 15, 23, 42, 0.9),
-                0 0 1px rgba(15,23, 42, 0.7);
+                0 18px 45px rgba(15, 23, 42, 0.9),
+                0 0 0 1px rgba(250, 204, 21, 0.15);
     }
     @media(max-width: 900px){
         .app-main {

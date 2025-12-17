@@ -85,8 +85,8 @@
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 0.75rem;
-    background: rgba(30, 41, 59, 0.6);
-    border: 2px solid rgba(96, 165, 250, 0.3);
+    background: rgb(30, 59, 41);
+    border: 2px solid rgba(34, 178, 197, 0.28);
 }
 
 .champion-name-overlay {
