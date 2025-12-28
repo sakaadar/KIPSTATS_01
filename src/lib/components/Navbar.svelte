@@ -18,8 +18,12 @@
 
   const navLinks: NavLink[] = [
     { href: '/champions', label: 'Champions' },
-    { href: '/items', label: 'Items' }
+    { href: '/items', label: 'Items' },
+    { href: '/matchHistory', label: 'Match History' },
+    { href: '/ranked', label: 'Ranked Overview' },
+    { href: '/tier-list', label: 'Champions Tier List' }
   ];
+
 
   let showModal: boolean = false;
   let riotKey: string = '';
