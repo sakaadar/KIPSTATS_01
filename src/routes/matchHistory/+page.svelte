@@ -1,6 +1,5 @@
 <script lang="ts">
     import '$lib/styles/matchHistory.css';
-    import type { Match, Player } from '$lib/stores/matchHistory';
 
     const DDRAGON_VERSION = '14.19.1';
 
@@ -12,22 +11,48 @@
 
     let expanded: number | null = null;
 
-    const mockMatches: Match[] = Array.from({ length: 20 }, (_, i) => ({
-        queue: 'Solo/Duo',
-        champion: 'Darius',
-        kda: '6 / 9 / 0',
-        result: i % 2 === 0 ? 'Loss' : 'Win',
-        lp: i % 2 === 0 ? -24 : +21,
-        placement: '9th',
-        items: [3071, 3111, 3053, 3742, 3065, 3047],
-        date: '4d ago',
-        team: Array.from({ length: 10 }, (_, p) => ({
-            name: `Player${p + 1}`,
-            champion: ['Darius', 'Ahri', 'Jinx', 'LeeSin', 'Orianna'][p % 5],
-            kda: `${Math.floor(Math.random() * 10)} / ${Math.floor(Math.random() * 8)} / ${Math.floor(Math.random() * 12)}`,
-            items: [3071, 3111, 3053, 3742, 3065, 3047]
-        }))
-    }));
+    const champions = ['Darius', 'Ahri', 'Jinx', 'LeeSin', 'Orianna', 'Thresh', 'Garen'];
+    const itemPools = [
+        [3071, 3111, 3053, 3742, 3065, 3047],
+        [6672, 3006, 3031, 3094, 3085, 1038],
+        [6655, 3020, 3165, 3157, 3089, 1058]
+    ];
+
+    const r = (max: number) => Math.floor(Math.random() * max);
+
+    const mockMatches = Array.from({ length: 12 }, (_, i) => {
+        const win = Math.random() > 0.5;
+
+        const player = (name: string, you = false) => ({
+            name,
+            champion: champions[r(champions.length)],
+            kills: r(12),
+            deaths: r(9),
+            assists: r(18),
+            items: itemPools[r(itemPools.length)],
+            isYou: you
+        });
+
+        return {
+            queue: i % 2 ? 'Ranked Solo/Duo' : 'Normal Draft',
+            champion: 'Darius',
+            result: win ? 'Win' : 'Loss',
+            lp: win ? +21 : -19,
+            kills: r(10),
+            deaths: r(8),
+            assists: r(14),
+            cs: 170 + r(90),
+            duration: `${28 + r(15)}m`,
+            date: `${1 + r(6)}d ago`,
+            items: itemPools[r(itemPools.length)],
+            blueTeam: Array.from({ length: 5 }, (_, p) =>
+                player(p === 0 ? 'You' : `Blue${p}`, p === 0)
+            ),
+            redTeam: Array.from({ length: 5 }, (_, p) =>
+                player(`Red${p}`)
+            )
+        };
+    });
 
     function toggle(i: number) {
         expanded = expanded === i ? null : i;
@@ -40,57 +65,56 @@
     {#each mockMatches as match, i}
         <li class="match {match.result.toLowerCase()}">
             <button class="match-row" on:click={() => toggle(i)}>
-                <div class="left">
-                    <img
-                            class="champion-icon"
-                            src={champIcon(match.champion)}
-                            alt={match.champion}
-                    />
+                <div class="summary">
+                    <img class="champion-icon" src={champIcon(match.champion)} />
 
-                    <div class="info">
+                    <div class="stats">
+                        <span class="result">{match.result}</span>
                         <span class="queue">{match.queue}</span>
-                        <span class="date">{match.date}</span>
-                        <span class="kda">{match.kda} <small>KDA</small></span>
-                        <span class="tag">Very bad Team</span>
+                        <span class="kda">
+                            {match.kills}/{match.deaths}/{match.assists}
+                        </span>
+                        <span class="cs">{match.cs} CS</span>
+                        <span class="duration">{match.duration}</span>
                     </div>
-                </div>
 
-                <div class="items">
-                    {#each match.items as id}
-                        <img class="item-slot" src={itemIcon(id)} alt="item" />
-                    {/each}
-                </div>
+                    <div class="items">
+                        {#each match.items as id}
+                            <img class="item-slot" src={itemIcon(id)} />
+                        {/each}
+                    </div>
 
-                <div class="right">
-                    <span class="lp">{match.lp} LP</span>
-                    <span class="place">{match.placement}</span>
-                    <span class="arrow">{expanded === i ? '▲' : '▼'}</span>
+                    <div class="right">
+                        <span class="lp">{match.lp > 0 ? `+${match.lp}` : match.lp} LP</span>
+                        <span class="date">{match.date}</span>
+                        <span class="arrow">{expanded === i ? '▲' : '▼'}</span>
+                    </div>
                 </div>
             </button>
 
             {#if expanded === i}
                 <div class="expanded">
-                    <h4>All Players</h4>
-                    <ul class="team">
-                        {#each match.team as p}
-                            <li>
-                                <img
-                                        class="champion-icon small"
-                                        src={champIcon(p.champion)}
-                                        alt={p.champion}
-                                />
+                    <div class="teams">
+                        <ul class="team blue">
+                            {#each match.blueTeam as p}
+                                <li class:you={p.isYou}>
+                                    <img src={champIcon(p.champion)} />
+                                    <span>{p.name}</span>
+                                    <span>{p.kills}/{p.deaths}/{p.assists}</span>
+                                </li>
+                            {/each}
+                        </ul>
 
-                                <span>{p.name}</span>
-                                <span class="kda">{p.kda}</span>
-
-                                <span class="items">
-                  {#each p.items as id}
-                    <img class="item-slot small" src={itemIcon(id)} alt="item" />
-                  {/each}
-                </span>
-                            </li>
-                        {/each}
-                    </ul>
+                        <ul class="team red">
+                            {#each match.redTeam as p}
+                                <li>
+                                    <img src={champIcon(p.champion)} />
+                                    <span>{p.name}</span>
+                                    <span>{p.kills}/{p.deaths}/{p.assists}</span>
+                                </li>
+                            {/each}
+                        </ul>
+                    </div>
                 </div>
             {/if}
         </li>
