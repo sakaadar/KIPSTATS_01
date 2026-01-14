@@ -21,7 +21,7 @@
     { href: '/items', label: 'Items' },
     { href: '/matchHistory', label: 'Match History' },
     { href: '/ranked', label: 'Ranked Overview' },
-    { href: '/tier-list', label: 'Champions Tier List' }
+    { href: '/tierList', label: 'Champions Tier List' }
   ];
 
 
