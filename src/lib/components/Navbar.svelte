@@ -1,5 +1,15 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { get } from 'svelte/store';
+  import {
+    loadUserSettings,
+    saveApiKey,
+    saveMyProfile,
+    userSettings,
+    type Region
+  } from '$lib/stores/userSettings';
 
   let menuOpen: boolean = false;
 
@@ -25,24 +35,95 @@
   ];
 
 
+  //wizard state
+  type WizardStep = 'API_KEY' | 'PROFILE';
   let showModal: boolean = false;
+  let step: WizardStep = 'API_KEY';
+  let error = '';
+
+  
   let riotKey: string = '';
+
+  let riotId = '';
+  let tagline = '';
+  let region: Region = 'EUW1';
 
   $: currentPath = $page.url.pathname;
 
   const openModal = (): void => {
     showModal = true;
   };
-
   const closeModal = (): void => {
     showModal = false;
   };
 
+    function openWizard(): void{
+    error: '';
+    const s = get(userSettings);
+    step = !s.riotApiKey ? 'API_KEY' : (!s.myProfile ? 'PROFILE' : 'PROFILE');
+    showModal = true;
+  }
+
+  onMount(() => {
+    loadUserSettings();
+
+    //auto-open if not confi
+   /* const s = $userSettings;
+    if(!s.riotApiKey){
+      step = 'API_KEY';
+      showModal = true;
+      return;
+    }
+    if(!s.myProfile){
+      step = 'PROFILE';
+      showModal = true;
+    } */
+  });
+
+  function submitApiKey(): void {
+    error = '';
+    const key = riotKey.trim();
+    
+
+    if(!key){
+      error = 'Please enter an API key';
+      return;
+    }
+    if(!key.startsWith('RGAPI-')){
+      error = 'Key format looks wrong (must start with RGAPI-).';
+      return;
+    }
+
+    //call backend to verify
+    saveApiKey(key);
+    step = 'PROFILE';
+  }
+
+  async function submitProfile(): Promise<void> {
+    error = '';
+    const id = riotId.trim();
+    const tag = tagline.trim();
+
+    if(!id || !tag) {
+      error = 'Please enter Riot ID and Tagline.';
+      return;
+    }
+
+    //later: make sure PUUID resolves via backend/core and store it 
+    saveMyProfile({ riotId: id, tagline: tag, region});
+
+    showModal = false;
+    //redirect to dashboard
+    await goto('/');
+  }
+
+ /*
   const handleSubmit = (): void => {
     if (!riotKey.trim()) return;
     console.log('Riot API Key:', riotKey);
     closeModal();
   };
+  */
 </script>
 
 <nav class="navbar">
@@ -75,7 +156,7 @@
               class="sidebar-link"
               on:click={() => {
           closeMenu();
-          openModal();
+          openWizard();
         }}
       >
         User
@@ -88,6 +169,7 @@
 {#if showModal}
   <div class="modal-backdrop" on:click={closeModal}>
     <div class="modal-content" on:click|stopPropagation>
+    {#if step === 'API_KEY'}
       <h2>Enter Riot API Key</h2>
 
       <div class="input-group">
@@ -100,14 +182,57 @@
         />
       </div>
 
+      {#if error}
+       <p class="error-text">{error}</p>
+      {/if}
+
       <div class="modal-actions">
         <button class="cancel-btn" on:click={closeModal}>
           Cancel
         </button>
-        <button class="submit-btn" on:click={handleSubmit}>
-          Submit
+        <button class="submit-btn" on:click={submitApiKey}>
+          Next
         </button>
       </div>
+    {:else}
+      <h2>Set your profile</h2>
+
+      <div class="input-group">
+        <label for="riot-id">Riot ID</label>
+        <input id="riot-id" type="text" bind:value={riotId} placeholder="GameName" />
+      </div>
+
+      <div class="input-group">
+        <label for="tagline">Tagline</label>
+        <input id="tagline" type="text" bind:value={tagline} placeholder="USER#000" />
+      </div>
+
+      <div class="input-group">
+        <label for="region">Region</label>
+          <select id="region" bind:value={region}>
+            <option value="EUW1">EUW1</option>
+            <option value="EUN1">EUN1</option>
+            <option value="NA1">NA1</option>
+            <option value="KR">KR</option>
+            <option value="BR1">BR1</option>
+            <option value="JP1">JP1</option>
+            <option value="LA1">LA1</option>
+            <option value="LA2">LA2</option>
+            <option value="OC1">OC1</option>
+            <option value="TR1">TR1</option>
+            <option value="RU">RU</option>
+          </select>
+      </div>
+
+
+      {#if error}
+        <p class="error-text">{error}</p>
+      {/if}
+      <div class="modal-actions">
+          <button class="cancel-btn" on:click={closeModal}>Cancel</button>
+          <button class="submit-btn" on:click={submitProfile}>Save & and Go to Dashboard</button>
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
@@ -293,6 +418,13 @@
     background: rgba(107, 114, 128, 0.28);
   }
 
+  .error-text{
+    margin-top: 8px;
+    color: #c92020;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+
   .submit-btn {
     background: rgba(96, 165, 250, 0.18);
     border-color: rgba(96, 165, 250, 0.5);
@@ -301,6 +433,13 @@
 
   .submit-btn:hover {
     background: rgba(96, 165, 250, 0.28);
+  }
+
+  select{
+    padding: 5px 7px;
+    color: rgba(24, 129, 31, 0.92);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
   }
 
   @keyframes fadeIn {
