@@ -95,4 +95,3 @@ npm run dev
 
 ### 3) Run in terminal 
 npm run tauri dev
-
