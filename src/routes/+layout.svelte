@@ -35,36 +35,28 @@
         flex: 1;
         display: flex;
         justify-content: center;
-        padding: 1rem 1.5rem;
+        padding: 0;
         box-sizing: border-box;
     }
     .app-shell{
-        width: 100%;
-        max-width: 1400px;
-        min-height: calc(100vh - 4.5rem);
-        padding: 1.5rem 1.75rem 1.75rem;
-        box-sizing: border-box;
+  width: 100%;
+  max-width: 1400px;
+  padding: 0;
+  box-sizing: border-box;
 
-        border-radius: 12px;
-        background:
-                linear-gradient(
-                        135deg,
-                        rgba(15, 23, 42, 0.98),
-                        rgba(17, 24, 39, 0.98)
-                );
+  border-radius: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
 
-        border: 1px solid var(--border-gold);
-
-        box-shadow:
-                0 18px 45px rgba(15, 23, 42, 0.9),
-                0 0 0 1px rgba(250, 204, 21, 0.15);
-    }
+  min-height: auto; /* vigtigt */
+}
     @media(max-width: 900px){
         .app-main {
-            padding: 0.5rem;
+            padding: 0;
         }
         .app-shell{
-            padding: 1rem 1.1rem 1.25rem;
+            padding: 0;
             border-radius: 10px;
         }
     }

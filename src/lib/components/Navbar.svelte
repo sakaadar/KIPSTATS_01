@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
+  import { WizardOpen, closeWizardModal } from '$lib/stores/wizard';
   import {
     loadUserSettings,
     saveApiKey,
@@ -50,18 +51,16 @@
 
   $: currentPath = $page.url.pathname;
 
-  const openModal = (): void => {
-    showModal = true;
-  };
-  const closeModal = (): void => {
-    showModal = false;
-  };
-
     function openWizard(): void{
-    error: '';
+    error: "";
     const s = get(userSettings);
-    step = !s.riotApiKey ? 'API_KEY' : (!s.myProfile ? 'PROFILE' : 'PROFILE');
-    showModal = true;
+    step = s.riotApiKey ? 'PROFILE' : 'API_KEY';
+    WizardOpen.set(true);
+  }
+
+  function closeModal(): void{
+    closeWizardModal();
+    error = "";
   }
 
   onMount(() => {
@@ -166,7 +165,7 @@
 {/if}
 
 <!-- MODAL (was missing!) -->
-{#if showModal}
+{#if $WizardOpen}
   <div class="modal-backdrop" on:click={closeModal}>
     <div class="modal-content" on:click|stopPropagation>
     {#if step === 'API_KEY'}
