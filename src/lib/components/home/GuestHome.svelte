@@ -169,7 +169,7 @@
     align-items: center;
   }
 
-  /* Champion background (sæt din egen her) */
+  /* Champion background */
   .hero__bg {
     position: absolute;
     inset: 0;
@@ -247,7 +247,7 @@
     background: rgba(255,255,255,0.08);
     color: inherit;
     cursor: pointer;
-    transition: transform 160ms ease, background 160ms ease;
+    transition: transform 160ms ease;
   }
   .btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.10); }
 
