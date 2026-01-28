@@ -1,12 +1,11 @@
 <script lang="ts">
-
+    import { auth } from "$lib/stores/auth";
+    import GuestHome from "$lib/components/home/GuestHome.svelte";
+    import UserDashboard from "$lib/components/home/UserDashboard.svelte";
 </script>
 
-<main class="container">
-  <h1>Hello from InStats!!!</h1>
-    <p>Vælg en sektion i navbaren for at komme igang!</p>
-    
-</main>
-
-<style>
-</style>
+    {#if $auth.user}
+      <UserDashboard user={$auth.user} />
+    {:else}
+      <GuestHome />
+    {/if}  

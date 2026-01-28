@@ -1,0 +1,138 @@
+.title {
+    margin-bottom: 1.5rem;
+}
+
+.match-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.match {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.match.win {
+    background: linear-gradient(90deg, rgba(34,197,94,0.15), rgba(15,23,42,0.95));
+}
+
+.match.loss {
+    background: linear-gradient(90deg, rgba(239,68,68,0.18), rgba(15,23,42,0.95));
+}
+
+.match-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    align-items: center;
+}
+
+.match-row:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.left {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.champion-icon {
+    width: 44px;
+    height: 44px;
+    background: #1e293b;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    object-fit: cover;
+    border: 1px solid rgba(255,255,255,0.25);
+}
+
+.champion-icon.small {
+    width: 32px;
+    height: 32px;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    font-size: 0.85rem;
+}
+
+.queue {
+    font-weight: 600;
+}
+
+.kda {
+    font-family: monospace;
+}
+
+.tag {
+    color: #f87171;
+    font-size: 0.75rem;
+}
+
+.items {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.item-slot {
+    width: 28px;
+    height: 28px;
+    background: #020617;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    object-fit: cover;
+    background: none;
+}
+
+.item-slot.small {
+    width: 22px;
+    height: 22px;
+}
+
+.right {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.lp {
+    font-weight: 600;
+}
+
+.arrow {
+    opacity: 0.6;
+}
+
+.expanded {
+    padding: 1rem;
+    background: rgba(0,0,0,0.35);
+}
+
+.team {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.team li {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr 2fr;
+    font-size: 0.8rem;
+    align-items: center;
+}
