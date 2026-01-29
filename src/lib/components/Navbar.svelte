@@ -1,5 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
+
 
   let menuOpen: boolean = false;
 
@@ -38,11 +40,20 @@
     showModal = false;
   };
 
+  const MOCK_KEY = '123456789';
+
   const handleSubmit = (): void => {
     if (!riotKey.trim()) return;
-    console.log('Riot API Key:', riotKey);
-    closeModal();
+
+    if (riotKey === MOCK_KEY) {
+      closeModal();
+      riotKey = '';
+      goto('/user');
+    } else {
+      alert('Invalid API key (mock)');
+    }
   };
+
 </script>
 
 <nav class="navbar">
