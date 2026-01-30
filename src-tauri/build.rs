@@ -1,3 +1,7 @@
+
+
 fn main() {
-    tauri_build::build()
+    // Tauri build (icons, permissions, etc.)
+    tauri_build::build();
+
 }

@@ -1,0 +1,274 @@
+// Copyright (C) 2026 Taggerkov
+// SPDX-License-Identifier: MPL-2.0
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+syntax = "proto3";
+package kips.dto;
+
+import "kips/dto/secrets.proto";
+
+// The Plugin Channel describes how the Core discovers, configures, and monitors Plugins.
+// Plugins are loaded and executed as WASM modules inside the Core.
+
+// Plugin is a full view of a plugin: stable identity, declarations, configuration, and runtime state.
+message Plugin {
+  // Stable and runtime identity reference for this plugin.
+  PluginRef ref = 1;
+
+  // Stable plugin metadata.
+  PluginInfo info = 2;
+
+  // Capability and policy declarations.
+  PluginDeclaration declaration = 3;
+
+  // Persisted plugin configuration.
+  PluginConfig config = 4;
+
+  // Runtime state and health as observed by the Core.
+  PluginRuntime runtime = 5;
+}
+
+// PluginRef identifies a plugin by stable name and optional runtime instance id.
+message PluginRef {
+  // Stable plugin identifier.
+  //
+  // Must be unique, URL-safe, lowercase with hyphens.
+  // Examples: "rleague", "dota2", "valorant"
+  string name = 1;
+
+  // Runtime instance identifier.
+  //
+  // Meaningful only within a Core session. When unset, refers to "the plugin named {name}".
+  optional uint64 instance_id = 2;
+}
+
+// PluginInfo contains stable metadata about a plugin.
+message PluginInfo {
+  // Stable plugin identifier. Must match PluginRef.name.
+  string name = 1;
+
+  // Standardized game identifier this plugin supports.
+  //
+  // Use lowercase with hyphens for consistency.
+  // Examples: "league-of-legends", "dota2", "valorant"
+  string game_id = 2;
+
+  // Human-readable game name for UI display.
+  string game_title = 3;
+
+  // Human-readable description of plugin functionality.
+  //
+  // Keep concise (1-2 sentences).
+  string description = 4;
+
+  // Plugin author or organization.
+  string author = 5;
+
+  // Semantic version string.
+  //
+  // Format: "MAJOR.MINOR.PATCH" or "MAJOR.MINOR.PATCH-PRERELEASE"
+  // Examples: "1.0.0", "0.3.2-beta", "2.1.0-rc1"
+  string version = 6;
+
+  // Project homepage or repository URL.
+  optional string homepage = 7;
+
+  // SPDX license identifier.
+  // Examples: "MPL-2.0", "MIT", "Apache-2.0"
+  optional string license = 8;
+}
+
+// PluginDeclaration describes what a plugin provides and what it requires.
+// The Core uses this information for discovery, UI/UX, and policy enforcement.
+message PluginDeclaration {
+  // Capability descriptors provided by this plugin.
+  repeated Capability capabilities = 1;
+
+  // Event kinds (or prefixes) this plugin may emit through the Events Channel.
+  //
+  // Recommended convention: "plugin.<plugin_name>.<area>.<event>".
+  repeated string event_kinds = 2;
+
+  // Network requirements and declared external services.
+  NetworkPolicy network = 3;
+
+  // Secret requirements declared by the plugin.
+  //
+  // Does not include secret material.
+  repeated SecretRequirement secret_requirements = 4;
+}
+
+// Capability is a structured entry in the plugin-defined capability registry.
+//
+// The Core treats capability semantics as opaque. Capabilities are intended for
+// discovery and coarse routing, not for payload typing.
+message Capability {
+  // Capability identifier.
+  //
+  // Recommended convention: "plugin.<plugin_name>.<area>.<feature>".
+  // Examples: "plugin.rleague.match.timeline", "plugin.dota2.overlay.draft".
+  string id = 1;
+
+  // Optional capability parameters (string -> string).
+  //
+  // Examples:
+  //   "region" -> "na1"
+  //   "modes"  -> "ranked,normal"
+  map<string, string> params = 2;
+
+  // Optional event kind prefixes associated with this capability.
+  //
+  // Used for UI/UX and subscription helpers.
+  repeated string event_kinds_prefixes = 3;
+}
+
+// NetworkPolicy declares network requirements for a plugin.
+// This declaration is used for privacy transparency and policy gating.
+message NetworkPolicy {
+  // Whether network access is required for core functionality.
+  bool required = 1;
+
+  // Whether the plugin intends to access only local endpoints (localhost/LAN).
+  //
+  // This is a declaration for policy and auditing; enforcement is performed by the Core.
+  bool local_only = 2;
+
+  // Declared external services used by this plugin.
+  repeated ExternalService services = 3;
+}
+
+// ExternalService describes a network dependency used by a plugin.
+message ExternalService {
+  // Human-readable service name.
+  // Examples: "Riot Games API", "Steam Web API"
+  string name = 1;
+
+  // Hostnames (and optional ports) contacted by the plugin.
+  // Examples: "api.riotgames.com", "ddragon.leagueoflegends.com"
+  repeated string hosts = 2;
+
+  // Optional service purpose for UI display.
+  optional string purpose = 3;
+
+  // Whether this service is required for core functionality.
+  bool required = 4;
+}
+
+// PluginConfig stores persisted configuration for a plugin.
+// Configuration MUST NOT contain secret material.
+message PluginConfig {
+  // Whether this plugin is enabled.
+  bool enabled = 1;
+
+  // Auto-start on Core launch.
+  bool auto_start = 2;
+
+  // Plugin-defined configuration settings (string -> string).
+  //
+  // Examples:
+  //   "region" -> "na1"
+  //   "lang" -> "en_US"
+  map<string, string> settings = 3;
+}
+
+// PluginRuntime describes runtime state and health as observed by the Core.
+message PluginRuntime {
+  // Runtime instance identifier.
+  uint64 instance_id = 1;
+
+  // Timestamp when the plugin instance was loaded (milliseconds since Unix epoch, UTC).
+  int64 loaded_at_ms = 2;
+
+  // Current lifecycle state.
+  PluginState state = 3;
+
+  // Runtime health and performance metrics.
+  PluginHealth health = 4;
+
+  // Diagnostic message if state is PLUGIN_STATE_CRASHED.
+  optional string error = 5;
+
+  // Timestamp of the crash if state is PLUGIN_STATE_CRASHED (milliseconds since Unix epoch, UTC).
+  optional int64 crashed_at_ms = 6;
+}
+
+// PluginHealth tracks runtime health and performance metrics.
+message PluginHealth {
+  // Total number of events emitted by this plugin since load.
+  uint64 events_emitted = 1;
+
+  // Total number of errors encountered since load.
+  uint64 errors_count = 2;
+
+  // Timestamp of last plugin activity (milliseconds since Unix epoch, UTC).
+  int64 last_activity_ms = 3;
+
+  // Current WASM linear memory usage in bytes.
+  uint64 memory_bytes = 4;
+
+  // CPU time consumed in milliseconds since load.
+  uint64 cpu_time_ms = 5;
+
+  // Number of times plugin has been restarted due to crashes.
+  uint32 restart_count = 6;
+
+  // Average event processing latency in milliseconds.
+  optional double avg_latency_ms = 7;
+}
+
+// PluginState represents the lifecycle state of a plugin instance.
+enum PluginState {
+  // State is unknown or not set.
+  PLUGIN_STATE_UNSPECIFIED = 0;
+
+  // Plugin is being loaded and initialized.
+  PLUGIN_STATE_LOADING = 1;
+
+  // Plugin is running normally.
+  PLUGIN_STATE_RUNNING = 2;
+
+  // Plugin is paused by user.
+  PLUGIN_STATE_PAUSED = 3;
+
+  // Plugin has been cleanly stopped.
+  PLUGIN_STATE_STOPPED = 4;
+
+  // Plugin has crashed or encountered a fatal error.
+  PLUGIN_STATE_CRASHED = 5;
+
+  // Plugin is being unloaded.
+  PLUGIN_STATE_UNLOADING = 6;
+}
+
+// Parameters for listing plugins known to the Core.
+message ListPluginsRequest {
+  // When true, include runtime state for each plugin (may be more expensive).
+  bool include_runtime = 1;
+}
+
+// Response for listing plugins.
+message ListPluginsResponse {
+  // Plugin records known to the Core.
+  repeated Plugin plugins = 1;
+}
+
+// Parameters for fetching a single plugin.
+message GetPluginRequest {
+  // Plugin reference (stable name and optional runtime instance id).
+  PluginRef ref = 1;
+
+  // When true, include runtime state if available.
+  bool include_runtime = 2;
+}
+
+// Parameters for updating non-secret plugin configuration.
+message UpdatePluginConfigRequest {
+  // Target plugin (stable name; instance_id optional).
+  PluginRef ref = 1;
+
+  // New config to persist. Must not include secret material.
+  PluginConfig config = 2;
+}

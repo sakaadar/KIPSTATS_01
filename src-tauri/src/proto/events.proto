@@ -1,0 +1,143 @@
+// Copyright (C) 2026 Taggerkov
+// SPDX-License-Identifier: MPL-2.0
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+syntax = "proto3";
+package kips.dto;
+
+import "google/protobuf/any.proto";
+
+// The Event Channel defines a broadcast-style event stream.
+//
+// Events are intended to be ephemeral: the Core routes them to connected listeners and does not
+// provide durability guarantees. Clients must not assume replay or persistence.
+//
+// Game/domain timestamps belong in the opaque payload. Envelope timestamps describe when the
+// Core created the event.
+
+// Event identifies a single broadcast item routed by the Core.
+message Event {
+  // Event identity for ordering and best-effort deduplication.
+  //
+  // The Core does not guarantee durability. Identity is meaningful only for the lifetime of a
+  // Core session and should not be used as a durable reference.
+  EventId id = 1;
+
+  // When the Core created the event (milliseconds since Unix epoch, UTC).
+  int64 timestamp_ms = 2;
+
+  // Hierarchical event classification for filtering and routing.
+  //
+  // Recommended convention: "plugin.<plugin_name>.<area>.<event>" for plugin events.
+  // Core events may use: "core.<area>.<event>".
+  string kind = 3;
+
+  // Event origin.
+  EventSource source = 4;
+
+  // Opaque payload. Interpretation is defined by the plugin/client schema selected by type_url.
+  google.protobuf.Any payload = 5;
+
+  // Optional cross-cutting metadata (trace IDs, host info, etc.).
+  //
+  // Metadata MUST NOT contain secret material.
+  map<string, string> metadata = 6;
+}
+
+// EventId is a best-effort identifier for ordering and deduplication.
+message EventId {
+  // Core session identifier.
+  //
+  // Generated at Core start. Changes on Core restart.
+  // Examples: UUIDv4 string.
+  string core_session_id = 1;
+
+  // Monotonic sequence number within the Core session.
+  //
+  // Starts at 1 and increments for each event emitted by the Core.
+  uint64 sequence = 2;
+}
+
+// EventSource identifies the origin of an event.
+message EventSource {
+  oneof source {
+    CoreEmitter core = 1;
+    PluginEmitter plugin = 2;
+  }
+}
+
+// CoreEmitter identifies a Core-originated event.
+message CoreEmitter {
+  // Logical Core emitter name.
+  // Examples: "core"
+  string name = 1;
+}
+
+// PluginEmitter identifies a Plugin-originated event.
+message PluginEmitter {
+  // Stable plugin identifier.
+  // Examples: "rleague", "dota2"
+  string name = 1;
+
+  // Optional runtime instance identifier for disambiguation.
+  optional uint64 instance_id = 2;
+}
+
+// SubscribeEventsRequest requests a filtered event stream.
+// Filter semantics are best-effort: events may be dropped under load or by policy.
+message SubscribeEventsRequest {
+  // Filter definition. When unset, all events are eligible.
+  optional EventFilter filter = 1;
+
+  // Optional cross-cutting metadata (client version, trace IDs, etc.).
+  map<string, string> metadata = 2;
+}
+
+// EventFilter defines best-effort filtering for event subscriptions.
+message EventFilter {
+  // Matches Event.kind by prefix. Prefer this as the primary filter.
+  //
+  // Examples:
+  //   "plugin.rleague.match."
+  //   "core.plugins."
+  repeated string kind_prefixes = 1;
+
+  // Optional exact-match list for Event.kind.
+  //
+  // When set, an event matches if its kind is in this list OR matches any prefix.
+  repeated string kinds_exact = 2;
+
+  // Optional constraints on event origin.
+  //
+  // When empty, events from all sources are eligible.
+  // When set, an event matches if its source matches any selector.
+  repeated EventSourceSelector sources = 3;
+}
+
+// EventSourceSelector constrains events to a specific Core emitter or Plugin.
+message EventSourceSelector {
+  oneof source {
+    CoreSourceFilter core = 1;
+    PluginSourceFilter plugin = 2;
+  }
+}
+
+// CoreSourceFilter matches a Core emitter by name.
+message CoreSourceFilter {
+  // Logical Core emitter name.
+  // Examples: "core"
+  string name = 1;
+}
+
+// PluginSourceFilter matches a Plugin by stable name and optional runtime instance id.
+message PluginSourceFilter {
+  // Stable plugin identifier.
+  // Examples: "rleague"
+  string name = 1;
+
+  // Optional runtime instance identifier for disambiguation.
+  optional uint64 instance_id = 2;
+}

@@ -57,7 +57,15 @@
 </script>
 
 <nav class="navbar">
-  <div class="logo">IntStats</div>
+  <div
+          class="logo"
+          role="link"
+          tabindex="0"
+          on:click={() => goto('/')}
+          on:keydown={(e) => e.key === 'Enter' && goto('/')}
+  >
+    IntStats
+  </div>
 
   <button
           class="hamburger-btn"
@@ -322,5 +330,10 @@
   @keyframes scaleIn {
     from { transform: scale(0.93); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
+  }
+
+  .logo {
+    cursor: pointer;
+    user-select: none;
   }
 </style>

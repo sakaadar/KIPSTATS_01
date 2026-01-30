@@ -1,0 +1,113 @@
+// Copyright (C) 2026 Taggerkov
+// SPDX-License-Identifier: MPL-2.0
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+syntax = "proto3";
+package kips.dto;
+
+import "google/protobuf/any.proto";
+import "google/rpc/status.proto";
+
+// Standard messages provide a generic request/response envelope for routine
+// client <-> plugin traffic. The payload is opaque: interpretation is defined
+// by the selected plugin and the message type carried in google.protobuf.Any.
+
+// EndpointId identifies the origin or destination of a message.
+message EndpointId {
+  oneof id {
+    ClientId client = 1;
+    PluginId plugin = 2;
+    CoreId core = 3;
+  }
+}
+
+// ClientId identifies an external consumer (UI, overlay, bot, etc.).
+message ClientId {
+  // Logical client name (stable identifier).
+  // Examples: "web-ui", "discord-bot", "obs-overlay".
+  string name = 1;
+
+  // Optional client kind/channel.
+  // Examples: "ui", "bot", "overlay".
+  optional string kind = 2;
+}
+
+// PluginId identifies a plugin by its stable name, with an optional runtime instance id.
+message PluginId {
+  // Stable plugin name.
+  // Examples: "rleague", "dota2".
+  string name = 1;
+
+  // Optional runtime instance identifier for disambiguation.
+  // When unset, targets "the plugin named {name}".
+  optional uint64 instance_id = 2;
+}
+
+// CoreId identifies the daemon/core side of the system.
+message CoreId {
+  // Logical core emitter/service name.
+  // Example: "core".
+  string name = 1;
+}
+
+// Request is a standard message sent to a target endpoint.
+message Request {
+  // Unique identifier for this request.
+  // Recommended format: UUIDv4.
+  string request_id = 1;
+
+  // Message origin.
+  EndpointId source = 2;
+
+  // Message destination.
+  EndpointId target = 3;
+
+  // Timestamp when the request was created (milliseconds since Unix epoch, UTC).
+  int64 timestamp_ms = 4;
+
+  // Opaque payload. The type_url selects the concrete message type.
+  google.protobuf.Any payload = 5;
+
+  // Optional routing hint for logging/observability and coarse filtering.
+  // Convention: reverse-domain or dotted namespace, e.g. "plugin.rleague.match.get".
+  optional string kind = 6;
+
+  // Optional cross-cutting metadata (trace IDs, client version, locale, etc.).
+  map<string, string> metadata = 7;
+}
+
+// Response is the standard counterpart to Request.
+//
+// For unary RPCs, transport/protocol failures SHOULD be returned as gRPC status
+// (non-OK). For streaming RPCs, per-request protocol failures MAY be returned
+// in-message via `status` to avoid tearing down the entire stream.
+//
+// Game/domain outcomes belong in the opaque payload (plugin-defined).
+message Response {
+  // Correlates this response with its corresponding request.
+  string request_id = 1;
+
+  // Message origin.
+  EndpointId source = 2;
+
+  // Timestamp when the response was created (milliseconds since Unix epoch, UTC).
+  int64 timestamp_ms = 3;
+
+  oneof body {
+    // Opaque payload for successful protocol-level handling.
+    google.protobuf.Any payload = 4;
+
+    // Protocol-level failure for streaming contexts.
+    // When set, payload MUST be unset.
+    google.rpc.Status status = 5;
+  }
+
+  // Optional routing hint (typically echoes the request kind or a derived response kind).
+  optional string kind = 6;
+
+  // Optional cross-cutting metadata (trace IDs, server version, etc.).
+  map<string, string> metadata = 7;
+}
